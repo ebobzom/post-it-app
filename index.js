@@ -1,4 +1,4 @@
-let express=require('express');
+const express=require('express');
 let bodyParser=require('body-parser');
 let firebase=require('firebase');
 let app=express ();
@@ -14,6 +14,11 @@ firebase.initializeApp({
 });
 let db=firebase.database();
 let userRef=db.ref('user');
+let firebaseData={};
+userRef.on('value',(snapshot)=>{
+firebaseData=snapshot.val();
+});
+
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -27,7 +32,7 @@ app.use(function(req, res, next) {
 });
 
 app.get('/',(req,res)=>{
-  res.send('welcome to the home page');
+  res.send(firebaseData);
 });
 let apiRouter= express.Router();
 app.post('/signup',(req,res)=>{
@@ -40,8 +45,20 @@ app.post('/signup',(req,res)=>{
              console.log((err.code));
 });
 });
+app.post('/signin',(req,res)=>{
+  let email = req.body.email;
+  let password = req.body.password;
+
+firebase.auth().signInWithEmailAndPassword(email, password)
+.then(res.json({message:'signed in'}))
+.catch(function(error) {
+   console.log(error.code);
+   console.log(error.message);
+
+});
+})
 
 
-app.listen(process.env.PORT || 4000, ()=>{
+app.listen(process.env.PORT || 5000, ()=>{
   console.log('server running')
 })
