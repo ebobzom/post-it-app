@@ -14,12 +14,19 @@ firebase.initializeApp({
     projectId: "post-it-deb5e",
     storageBucket: "post-it-deb5e.appspot.com",
     messagingSenderId: "61667378041"
-})
+});
 
-let firebaseData=firebase.database();
-let userRef=firebaseData.ref('user');
+let db=firebase.database();//storing all data from firebase
+let userRef=db.ref('user');
+let firebaseData={};
+userRef.on('value',(snapshot)=>{
+firebaseData=snapshot.val();
+});
 
-app.use(function(req, res, next) {
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+app.use((req, res, next) =>{
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POSTS');
 	res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, \
@@ -27,17 +34,20 @@ app.use(function(req, res, next) {
 	next();
 });
 
+
 app.get('/',(req,res)=>{
   res.send('welcome to the homepage');
 });
 
-app.post('/signup',(req,res) =>{
-  let firstName=req.boby.firstname;
-  let email =req.body.email;
+app.post('/signup',function (req,res){
+  let names= req.body.names;
+  let email = req.body.email;
   let password=req.body.password;
+
   firebase.auth().createUserWithEmailAndPassword(email, password)
+  .then(res.send('sign-up successful'))
   .catch((error)=>{
-  res.send('signup not successful');
+  res.send(error.code);
   });
 });
 
@@ -45,14 +55,14 @@ app.post('/signin',(req,res)=>{
   let email = req.body.email;
   let password = req.body.password;
 
-firebase.auth().signInWithEmailAndPassword(email, password)
-  .then(res.json({message:'signed in'}))
-  .catch(function(error) {
+  firebase.auth().signInWithEmailAndPassword(email, password)
+  .then(res.send('signin successful'))
+  .catch((error) =>{
      res.send(error.code);
    });
    });
 
 //server listening in.
-app.listen(process.env.PORT || 4000, ()=>{
+app.listen(process.env.PORT || 8000, ()=>{
   console.log('server running');
 });
