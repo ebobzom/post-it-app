@@ -62,6 +62,21 @@ app.post('/signin',(req,res)=>{
    });
    });
 
+app.post('/group', (req,res)=>{
+  firebase.auth().onAuthStateChanged((user) => {
+  if(user){
+        const groupKey =firebase.database()
+        .ref('group').push({
+
+                         groupname : groupname
+                     }).key;
+                res.send('group created');
+          }
+          else {
+                res.send('User is not signed in');
+            }
+})
+
 //server listening in.
 app.listen(process.env.PORT || 8080, ()=>{
   console.log('server running');
