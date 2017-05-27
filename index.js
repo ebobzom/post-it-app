@@ -1,24 +1,32 @@
-let express=require('express');
-let bodyParser=require('body-parser');
-let firebase=require('firebase');
-let app=express ();
+const express=require('express');
 
+const bodyParser=require('body-parser');
+
+const firebase=require('firebase');
+
+let app=express();
+
+//initializing firebase
 firebase.initializeApp({
-  apiKey: "AIzaSyCQi_g6UBIqgs5XrOlCIRe30gTNJ-SmtsY",
+    apiKey: "AIzaSyCQi_g6UBIqgs5XrOlCIRe30gTNJ-SmtsY",
     authDomain: "post-it-deb5e.firebaseapp.com",
     databaseURL: "https://post-it-deb5e.firebaseio.com",
     projectId: "post-it-deb5e",
     storageBucket: "post-it-deb5e.appspot.com",
     messagingSenderId: "61667378041"
-
 });
-let db=firebase.database();
+
+let db=firebase.database();//storing all data from firebase
 let userRef=db.ref('user');
+let firebaseData={};
+userRef.on('value',(snapshot)=>{
+firebaseData=snapshot.val();
+});
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.use(function(req, res, next) {
+app.use((req, res, next) =>{
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POSTS');
 	res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, \
@@ -26,22 +34,35 @@ app.use(function(req, res, next) {
 	next();
 });
 
+
 app.get('/',(req,res)=>{
-  res.send('welcome to the home page');
-});
-let apiRouter= express.Router();
-app.post('/signup',(req,res)=>{
-  let full_name = req.body.full_name;
-         email =     req.body.email;
-         password = req.body.password;
-         firebase.auth().createUserWithEmailAndPassword(email, password)
-         .then(res.json({message: "Success: A user has been successfuly registered."}))
-         .catch((err) => {
-             console.log((err.code));
-});
+  res.send('welcome to the homepage');
 });
 
+app.post('/signup',function (req,res){
+  let names= req.body.names;
+  let email = req.body.email;
+  let password=req.body.password;
 
-app.listen(process.env.PORT || 4000, ()=>{
-  console.log('server running')
-})
+  firebase.auth().createUserWithEmailAndPassword(email, password)
+  .then(res.send('sign-up successful'))
+  .catch((error)=>{
+  res.send(error.code);
+  });
+});
+
+app.post('/signin',(req,res)=>{
+  let email = req.body.email;
+  let password = req.body.password;
+
+  firebase.auth().signInWithEmailAndPassword(email, password)
+  .then(res.send('signin successful'))
+  .catch((error) =>{
+     res.send(error.code);
+   });
+   });
+
+//server listening in.
+app.listen(process.env.PORT || 8000, ()=>{
+  console.log('server running');
+});
