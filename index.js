@@ -68,7 +68,13 @@ app.post('/group',(req,res)=>{
   userRef.push({
     user_name:userName,
     group_name:groupName
-  });
+  }).then(()=>{
+    res.send({messae:'group created successfull'});
+  
+  },
+  (e)=>{
+    res.send(e.code);
+})
 
 });
 
