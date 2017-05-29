@@ -62,6 +62,16 @@ app.post('/signin',(req,res)=>{
    });
    });
 
+app.post('/group',(req,res)=>{
+  let userName=req.body.username;
+  let groupName=req.body.groupname;
+  userRef.push({
+    user_name:userName,
+    group_name:groupName
+  });
+
+});
+
 
 //server listening in.
 app.listen(process.env.PORT || 8080, ()=>{
