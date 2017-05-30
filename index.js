@@ -79,7 +79,7 @@ app.post('/signin',(req,res)=>{
 app.post('/group',(req,res)=>{
   let userName=req.body.username;
   let groupName=req.body.groupname;
-  let groupRef=userRef.child('groupName');
+  let groupRef=userRef.child(groupName);
   let newGroup=groupRef.push({
     user_name:userName,
     group_name:groupName
