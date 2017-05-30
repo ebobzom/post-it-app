@@ -17,15 +17,17 @@ firebase.initializeApp({
 });
 
 let db=firebase.database();//storing all data from firebase
-let userRef=db.ref('user');
+let userRef=db.ref('user');//giving a name to reference
 let firebaseData={};
 userRef.on('value',(snapshot)=>{
 firebaseData=snapshot.val();
 });
 
+//initializing body parser to grap information from posts
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+// configure app to handle CORS requests
 app.use((req, res, next) =>{
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POSTS');
@@ -34,46 +36,59 @@ app.use((req, res, next) =>{
 	next();
 });
 
-
+//creating homepage route
 app.get('/',(req,res)=>{
-  res.send('welcome to the homepage');
+  res.send({message:'welcome to the homepage'});
 });
 
-app.post('/signup',function (req,res){
+//creating signup route
+app.post('/signup',(req,res)=>{
   let names= req.body.names;
   let email = req.body.email;
   let password=req.body.password;
 
   firebase.auth().createUserWithEmailAndPassword(email, password)
-  .then(res.send('sign-up successful'))
-  .catch((error)=>{
-  res.send(error.code);
-  });
+  .then(()=>{
+    res.send({message:'signup successful'});
+
+  },(e)=>{
+
+    res.send(e.code);
+
+  })
+  
 });
 
+//creating signin route
 app.post('/signin',(req,res)=>{
   let email = req.body.email;
   let password = req.body.password;
 
   firebase.auth().signInWithEmailAndPassword(email, password)
-  .then(res.send('signin successful'))
-  .catch((error) =>{
-     res.send(error.code);
-   });
+  .then(()=>{
+
+    res.send({message:'signin successful'});
+
+  },(e)=>{
+    res.send({message:'an error occurred',e});//handling error
+  })
+  
    });
 
+//creating group route
 app.post('/group',(req,res)=>{
   let userName=req.body.username;
   let groupName=req.body.groupname;
-  userRef.push({
+  let groupRef=userRef.child('groupName');
+  let newGroup=groupRef.push({
     user_name:userName,
     group_name:groupName
   }).then(()=>{
-    res.send({messae:'group created successfull'});
+    res.send({messae:'group created successful',groupKey:newGroup.key});
   
   },
   (e)=>{
-    res.send(e.code);
+    res.send(e.code);//handling error
 })
 
 });
