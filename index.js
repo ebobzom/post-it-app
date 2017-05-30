@@ -17,7 +17,7 @@ firebase.initializeApp({
 });
 
 let db=firebase.database();//storing all data from firebase
-let userRef=db.ref('user');//giving a name to reference
+let userRef=db.ref('user_groups');//giving a name to reference
 let firebaseData={};
 userRef.on('value',(snapshot)=>{
 firebaseData=snapshot.val();
@@ -67,7 +67,7 @@ app.post('/signin',(req,res)=>{
   firebase.auth().signInWithEmailAndPassword(email, password)
   .then(()=>{
 
-    res.send({message:'signin successful'});
+    res.send({message:'signin successfully'});
 
   },(e)=>{
     res.send({message:'an error occurred',e});//handling error
@@ -84,13 +84,28 @@ app.post('/group',(req,res)=>{
     user_name:userName,
     group_name:groupName
   }).then(()=>{
-    res.send({messae:'group created successful',groupKey:newGroup.key});
+    res.send({messae:'group created successfully',groupKey:newGroup.key});
   
   },
   (e)=>{
     res.send(e.code);//handling error
-})
+});
 
+});
+
+//adding user to group
+app.post('/group/uid',(req,res)=>{
+  let groupToAddName=req.body.group_name;
+  let user_uid=req.body.uid;
+  userRef.child(groupToAddName).update({
+    newGroupMember:user_uid
+  }).then(()=>{
+
+    res.send({message:'user added to group successfully'})
+
+  },(e)=>{
+    res.send({message:'an error occured',errror:e})
+  })
 });
 
 
