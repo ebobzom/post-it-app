@@ -94,9 +94,10 @@ app.post('/group',(req,res)=>{
 });
 
 //adding user to group
+
 app.post('/group/uid',(req,res)=>{
   let groupToAddName=req.body.group_name;
-  let user_uid=req.body.uid;
+  let user_uid=req.body.uid;//using user uid to add members
   userRef.child(groupToAddName).update({
     newGroupMember:user_uid
   }).then(()=>{
@@ -107,7 +108,15 @@ app.post('/group/uid',(req,res)=>{
     res.send({message:'an error occured',errror:e})
   })
 });
+app.post('/signout',(req,res)=>{
+  firebase.auth().signOut().then(()=>{
 
+    res.send({message:'signout succeful'})
+
+  },(e)=>{
+    res.send({message:'an error occured'})
+  })
+})
 
 //server listening in.
 app.listen(process.env.PORT || 8080, ()=>{
